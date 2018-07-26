@@ -95,11 +95,14 @@ export default class extends Component<any, any> {
             {this.state.showLayerNames && <br />}
             {this.state.showLayerNames && this.state.rows[row].nm}
           </div>
-          <input
-            type="checkbox"
-            checked={false}
-            onChange={() => this.toggleHide(row, col)}
-          />
+          <div
+            style={styles.toggle}>
+            <input
+              type="checkbox"
+              checked={!this.state.rows[row].latch}
+              onChange={() => this.toggleHide(row, col)}
+            />
+          </div>
         </div>
       )
     }
@@ -128,10 +131,20 @@ export default class extends Component<any, any> {
 
   toggleHide = (selectedRow, selectedCol) => {
     const { rows } = this.state;
-    const { i, j, k, a, asset } = rows[selectedRow];
+    const { i, j, k, a, asset, latch } = rows[selectedRow];
     const newJson = JSON.parse(this.state.json);
-    newJson.layers[i].shapes[j].it[k] = {};
-    delete this.state.rows[selectedRow];
+    const path = newJson.layers[i].shapes[j].it[k];
+
+    if (latch) {
+      newJson.layers[i].shapes[j].it[k] = latch;
+      rows[selectedRow].latch = null;
+    } else {
+      newJson.layers[i].shapes[j].it[k] = {};
+      rows[selectedRow].latch = path;
+    }
+
+
+    // delete this.state.rows[selectedRow];
     this.setState({ json: JSON.stringify(newJson) });
   }
 
@@ -505,5 +518,12 @@ const styles = {
   row: { display: 'flex', flexDirection: 'row' },
   snack: { borderRadius: 0 },
   subtitle: { color: palette.gray },
-  layersBtn: { maxWidth: 220, marginRight: 20 }
+  layersBtn: { maxWidth: 220, marginRight: 20 },
+  toggle: {
+    position: 'absolute',
+    marginTop: -48,
+    height: 48,
+    paddingLeft: 5,
+    display: 'flex',
+  },
 };
