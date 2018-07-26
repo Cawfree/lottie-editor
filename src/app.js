@@ -52,6 +52,7 @@ export default class extends Component<any, any> {
     picker: false,
     presetColors: Object.values(palette),
     rows: [],
+    hidden: {},
     selectedCol: -1,
     selectedRow: -1,
     snack: false,
@@ -75,23 +76,30 @@ export default class extends Component<any, any> {
     {
       prop: 'color',
       render: (color: string, row: number, col: number) => (
-        <div // eslint-disable-line
-          style={Object.assign(
-            {},
-            { backgroundColor: color, color: invert(color) },
-            styles.colorRow,
-            styles.landing
-          )}
-          onClick={() =>
-            this.setState({
-              picker: !this.state.picker,
-              selectedCol: col,
-              selectedRow: row
-            })
-          }>
-          {color}
-          {this.state.showLayerNames && <br />}
-          {this.state.showLayerNames && this.state.rows[row].nm}
+        <div>
+          <div // eslint-disable-line
+            style={Object.assign(
+              {},
+              { backgroundColor: color, color: invert(color) },
+              styles.colorRow,
+              styles.landing
+            )}
+            onClick={() =>
+              this.setState({
+                picker: !this.state.picker,
+                selectedCol: col,
+                selectedRow: row
+              })
+            }>
+            {color}
+            {this.state.showLayerNames && <br />}
+            {this.state.showLayerNames && this.state.rows[row].nm}
+          </div>
+          <input
+            type="checkbox"
+            checked={false}
+            onChange={() => this.toggleHide(row, col)}
+          />
         </div>
       )
     }
@@ -117,6 +125,15 @@ export default class extends Component<any, any> {
   hidePicker = () => this.setState({ picker: false });
 
   assignAddAnimation = (ref: any) => (this.addAnimation = ref);
+
+  toggleHide = (selectedRow, selectedCol) => {
+    const { rows } = this.state;
+    const { i, j, k, a, asset } = rows[selectedRow];
+    const newJson = JSON.parse(this.state.json);
+    newJson.layers[i].shapes[j].it[k] = {};
+    delete this.state.rows[selectedRow];
+    this.setState({ json: JSON.stringify(newJson) });
+  }
 
   pickColor = (color: Object) => {
     const { rows, selectedRow, selectedCol } = this.state;
